@@ -1,0 +1,285 @@
+<style>
+  :root{
+    --bg:#0B0E14;
+    --surface:#12161F;
+    --surface2:#191F2B;
+    --line:#242B38;
+    --text:#E6E8EB;
+    --muted:#7C8592;
+    --accent:#5EEAD4;
+    --accent-dim:#2A5B54;
+    --flame:#F0B429;
+    --mono: 'SF Mono', 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  .dsa-root{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    border-radius:16px;
+    padding:28px 24px 32px;
+    max-width:920px;
+    margin:0 auto;
+    position:relative;
+    overflow:hidden;
+  }
+  .dsa-root::before{
+    content:'';
+    position:absolute; inset:0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.035) 1px, transparent 0);
+    background-size: 22px 22px;
+    pointer-events:none;
+  }
+  .header{position:relative; display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:22px; flex-wrap:wrap; gap:14px;}
+  .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); margin:0 0 6px;}
+  h1{font-family:var(--mono); font-size:22px; margin:0; font-weight:600; letter-spacing:-0.01em;}
+  .subtitle{color:var(--muted); font-size:13px; margin-top:6px; max-width:420px; line-height:1.5;}
+  .stats{display:flex; gap:10px;}
+  .stat-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:10px;
+    padding:10px 14px; min-width:76px; text-align:center;
+  }
+  .stat-num{font-family:var(--mono); font-size:20px; font-weight:700; color:var(--text);}
+  .stat-num.flame{color:var(--flame);}
+  .stat-label{font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-top:2px;}
+
+  .overall-bar{position:relative; height:6px; border-radius:3px; background:var(--surface2); overflow:hidden; margin-bottom:26px;}
+  .overall-fill{height:100%; background:linear-gradient(90deg,var(--accent-dim),var(--accent)); transition:width .4s ease; border-radius:3px;}
+
+  .path-wrap{position:relative; margin-bottom:8px; overflow-x:auto; padding-bottom:6px;}
+  .path{display:flex; align-items:center; min-width:max-content; padding:4px 2px;}
+  .node-btn{
+    background:none; border:none; cursor:pointer; display:flex; flex-direction:column; align-items:center;
+    padding:0 2px; position:relative; font-family:var(--sans); flex-shrink:0;
+  }
+  .node-circle{
+    width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:13px; font-weight:700; color:var(--text);
+    border:2px solid var(--line); background:var(--surface); transition:all .25s ease; position:relative;
+  }
+  .node-btn.active .node-circle{ box-shadow:0 0 0 3px rgba(94,234,212,0.25); }
+  .node-btn:hover .node-circle{ border-color:var(--accent); }
+  .node-label{font-size:9.5px; color:var(--muted); margin-top:6px; max-width:56px; text-align:center; line-height:1.25;}
+  .connector{width:22px; height:2px; background:var(--line); flex-shrink:0; margin:0 -1px 22px;}
+  .connector.done{background:var(--accent);}
+
+  .panel{
+    background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px 22px; margin-top:18px;
+  }
+  .panel-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;}
+  .panel-title{font-family:var(--mono); font-size:15px; font-weight:700;}
+  .panel-signal{color:var(--muted); font-size:12.5px; margin-bottom:14px; line-height:1.5;}
+  .panel-count{font-family:var(--mono); font-size:12px; color:var(--accent);}
+
+  .problem-row{
+    display:flex; align-items:center; gap:12px; padding:9px 4px; border-bottom:1px solid var(--line);
+  }
+  .problem-row:last-child{border-bottom:none;}
+  .checkbox{
+    width:18px; height:18px; border-radius:5px; border:2px solid var(--line); flex-shrink:0; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:all .15s ease; background:var(--surface2);
+  }
+  .checkbox.checked{background:var(--accent); border-color:var(--accent);}
+  .checkbox.checked::after{content:'✓'; color:#0B0E14; font-size:12px; font-weight:900;}
+  .problem-name{font-size:13.5px; cursor:pointer; user-select:none; flex:1;}
+  .problem-name.done{color:var(--muted); text-decoration:line-through; text-decoration-color:var(--line);}
+
+  .footer-note{
+    margin-top:22px; padding-top:16px; border-top:1px solid var(--line);
+    font-size:11.5px; color:var(--muted); font-family:var(--mono); line-height:1.6;
+  }
+  .footer-note b{color:var(--accent);}
+  .reset-btn{
+    margin-top:14px; background:none; border:1px solid var(--line); color:var(--muted); font-size:11px;
+    padding:6px 12px; border-radius:6px; cursor:pointer; font-family:var(--mono);
+  }
+  .reset-btn:hover{border-color:#B45252; color:#E08585;}
+  .loading{color:var(--muted); font-family:var(--mono); font-size:13px; padding:20px;}
+</style>
+
+<div class="dsa-root" id="dsaRoot">
+  <div class="loading" id="loadingMsg">loading progress…</div>
+</div>
+
+<script>
+(function(){
+  const PATTERNS = [
+    {id:'arr', name:'Array & String Basics', signal:'Indexing, traversal, in-place logic', problems:['Two Sum','Best Time to Buy and Sell Stock','Move Zeroes','Remove Duplicates from Sorted Array','Rotate Array','Product of Array Except Self']},
+    {id:'two', name:'Two Pointers', signal:'Sorted array, left/right movement', problems:['Valid Palindrome','Two Sum II – Input Array Is Sorted','Container With Most Water','Trapping Rain Water','3Sum','Remove Element']},
+    {id:'slide', name:'Sliding Window', signal:'Subarray / substring / contiguous', problems:['Maximum Subarray','Longest Substring Without Repeating Characters','Longest Repeating Character Replacement','Minimum Size Subarray Sum','Permutation in String','Sliding Window Maximum']},
+    {id:'hash', name:'Hashing / Frequency', signal:'Counting, duplicates, lookup', problems:['Valid Anagram','Group Anagrams','Top K Frequent Elements','Longest Consecutive Sequence','Subarray Sum Equals K','First Unique Character in a String']},
+    {id:'stack', name:'Stack', signal:'Next greater/smaller, undo, parentheses', problems:['Valid Parentheses','Daily Temperatures','Next Greater Element I','Largest Rectangle in Histogram','Min Stack','Evaluate Reverse Polish Notation']},
+    {id:'interval', name:'Intervals', signal:'Merge, overlap, schedule', problems:['Merge Intervals','Insert Interval','Non-overlapping Intervals','Meeting Rooms','Meeting Rooms II','Minimum Number of Arrows to Burst Balloons']},
+    {id:'ll', name:'Linked List', signal:'Pointer manipulation', problems:['Reverse Linked List','Merge Two Sorted Lists','Linked List Cycle','Remove Nth Node From End','Reorder List','Add Two Numbers']},
+    {id:'bsearch', name:'Binary Search', signal:'Sorted, monotonic, minimum possible', problems:['Binary Search','Search in Rotated Sorted Array','Find Minimum in Rotated Sorted Array','First Bad Version','Koko Eating Bananas','Capacity To Ship Packages Within D Days']},
+    {id:'tree', name:'Trees (DFS/BFS)', signal:'Hierarchy, parent-child', problems:['Maximum Depth of Binary Tree','Invert Binary Tree','Diameter of Binary Tree','Binary Tree Level Order Traversal','Validate Binary Search Tree','Lowest Common Ancestor of a Binary Tree']},
+    {id:'graph', name:'Graph (BFS/DFS)', signal:'Connections, paths, cycles', problems:['Number of Islands','Clone Graph','Course Schedule','Course Schedule II','Pacific Atlantic Water Flow','Rotting Oranges']},
+    {id:'dp1', name:'Dynamic Programming (Core)', signal:'Choices, overlapping subproblems', problems:['Climbing Stairs','House Robber','Coin Change','Longest Increasing Subsequence','Partition Equal Subset Sum','Unique Paths']},
+    {id:'dp2', name:'Advanced DP', signal:'2D states, strings', problems:['Longest Common Subsequence','Edit Distance','Decode Ways','Word Break','Palindromic Substrings','Maximum Product Subarray']},
+    {id:'greedy', name:'Greedy', signal:'Local best → global best', problems:['Jump Game','Jump Game II','Gas Station','Candy','Assign Cookies','Non-overlapping Intervals']},
+    {id:'heap', name:'Heap / Priority Queue', signal:'Top K, smallest/largest', problems:['Kth Largest Element in an Array','Top K Frequent Elements','Find Median from Data Stream','Merge K Sorted Lists','Task Scheduler','Reorganize String']},
+    {id:'mono', name:'Monotonic Stack', signal:'Next greater/smaller (advanced)', problems:['Daily Temperatures','Next Greater Element II','Largest Rectangle in Histogram','Trapping Rain Water','Sum of Subarray Minimums']},
+  ];
+
+  const STORAGE_KEY = 'progress';
+  let state = { solved: {}, streak: 0, lastDate: null };
+  let activePattern = PATTERNS[0].id;
+
+  function todayStr(){
+    const d = new Date();
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+  function yesterdayStr(){
+    const d = new Date(); d.setDate(d.getDate()-1);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+
+  function totalCount(){ return PATTERNS.reduce((s,p)=>s+p.problems.length,0); }
+  function solvedCount(){ return Object.values(state.solved).filter(Boolean).length; }
+  function patternSolved(p){ return p.problems.filter(name => state.solved[p.id+'::'+name]).length; }
+
+  async function loadState(){
+    try{
+      const res = await window.storage.get(STORAGE_KEY, false);
+      if(res && res.value){
+        const parsed = JSON.parse(res.value);
+        state = Object.assign(state, parsed);
+      }
+    }catch(e){ /* no existing data yet, fine */ }
+  }
+
+  async function saveState(){
+    try{
+      await window.storage.set(STORAGE_KEY, JSON.stringify(state), false);
+    }catch(e){ console.error('save failed', e); }
+  }
+
+  function registerActivityToday(){
+    const t = todayStr();
+    if(state.lastDate === t) return;
+    if(state.lastDate === yesterdayStr()){
+      state.streak = (state.streak||0) + 1;
+    } else {
+      state.streak = 1;
+    }
+    state.lastDate = t;
+  }
+
+  function toggleProblem(patternId, name){
+    const key = patternId+'::'+name;
+    state.solved[key] = !state.solved[key];
+    if(state.solved[key]) registerActivityToday();
+    saveState();
+    render();
+  }
+
+  async function resetAll(){
+    state = { solved:{}, streak:0, lastDate:null };
+    await saveState();
+    render();
+  }
+
+  function nodeColor(pct){
+    if(pct === 0) return 'var(--line)';
+    if(pct < 100) return 'var(--accent-dim)';
+    return 'var(--accent)';
+  }
+
+  function render(){
+    const root = document.getElementById('dsaRoot');
+    const total = totalCount();
+    const done = solvedCount();
+    const overallPct = Math.round((done/total)*100);
+    const activeP = PATTERNS.find(p=>p.id===activePattern);
+    const activeDone = patternSolved(activeP);
+
+    let pathHtml = '';
+    PATTERNS.forEach((p, i) => {
+      const solved = patternSolved(p);
+      const pct = Math.round((solved/p.problems.length)*100);
+      const isActive = p.id === activePattern;
+      pathHtml += `
+        <button class="node-btn ${isActive?'active':''}" data-pattern="${p.id}" title="${p.name}: ${solved}/${p.problems.length}">
+          <div class="node-circle" style="border-color:${pct===100?'var(--accent)':'var(--line)'}; background:${pct===100?'var(--accent-dim)':'var(--surface)'};">${solved}</div>
+          <div class="node-label">${p.name.split('(')[0].trim()}</div>
+        </button>`;
+      if(i < PATTERNS.length - 1){
+        pathHtml += `<div class="connector ${pct===100?'done':''}"></div>`;
+      }
+    });
+
+    let problemsHtml = '';
+    activeP.problems.forEach(name => {
+      const key = activeP.id+'::'+name;
+      const checked = !!state.solved[key];
+      problemsHtml += `
+        <div class="problem-row">
+          <div class="checkbox ${checked?'checked':''}" data-toggle="${key}"></div>
+          <div class="problem-name ${checked?'done':''}" data-toggle="${key}">${name}</div>
+        </div>`;
+    });
+
+    root.innerHTML = `
+      <div class="header">
+        <div>
+          <p class="eyebrow">Pattern-first tracker</p>
+          <h1>DSA Interview Prep</h1>
+          <p class="subtitle">15 patterns, 85 problems. Master recognition, not repetition.</p>
+        </div>
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-num flame">${state.streak||0}🔥</div>
+            <div class="stat-label">Day streak</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">${done}/${total}</div>
+            <div class="stat-label">Solved</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">${overallPct}%</div>
+            <div class="stat-label">Complete</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="overall-bar"><div class="overall-fill" style="width:${overallPct}%"></div></div>
+
+      <div class="path-wrap"><div class="path">${pathHtml}</div></div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">${activeP.name}</div>
+          <div class="panel-count">${activeDone}/${activeP.problems.length}</div>
+        </div>
+        <div class="panel-signal">Signal: ${activeP.signal}</div>
+        ${problemsHtml}
+      </div>
+
+      <div class="footer-note">
+        <b>How to use it:</b> tap a station above to open its problem list. Checking off a problem logs today's activity and updates your streak. Come back once a day, even for one problem — that's what keeps the streak (and the habit) alive.
+        <div><button class="reset-btn" id="resetBtn">Reset all progress</button></div>
+      </div>
+    `;
+
+    root.querySelectorAll('[data-pattern]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{ activePattern = btn.getAttribute('data-pattern'); render(); });
+    });
+    root.querySelectorAll('[data-toggle]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const key = el.getAttribute('data-toggle');
+        const [pid, ...rest] = key.split('::');
+        toggleProblem(pid, rest.join('::'));
+      });
+    });
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      if(confirm('Clear all checked problems and streak? This cannot be undone.')) resetAll();
+    });
+  }
+
+  (async function init(){
+    await loadState();
+    render();
+  })();
+})();
+</script>
