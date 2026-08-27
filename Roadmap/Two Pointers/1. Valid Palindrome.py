@@ -32,8 +32,23 @@ def valid_palindrome(string):
     else:
         return False
 
+def valid_palindrome_1(string):
+    left = 0
+    right = len(string) - 1
+    while left < right:
+        while not string[left].isalnum():
+            left += 1
+        while not string[right].isalnum():
+            right -= 1
+        if string[left].lower() != string[right].lower():
+            return False
+        left += 1
+        right -= 1
+    return True
     
 if __name__ == "__main__":
     s = "A man, a plan, a canal: Panama"
     value  = valid_palindrome(s)
     print(value)
+    value_1 = valid_palindrome_1(s)
+    print(value_1)
