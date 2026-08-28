@@ -44,7 +44,7 @@ def valid_palindrome_1(string):
             return False
         left += 1
         right -= 1
-    return True
+    return True 
     
 if __name__ == "__main__":
     s = "A man, a plan, a canal: Panama"
