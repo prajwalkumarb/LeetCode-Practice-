@@ -45,10 +45,40 @@ def valid_palindrome_1(string):
         left += 1
         right -= 1
     return True 
+
+def isPalindrome(self, s: str) -> bool:
+    exclude_char = [",",":"," ","/",".","@","#","$","_","-","'","\\","{","}","!","[","]",'"',"?",";","(",")","`"]
+    string = ""
+    for char in s:
+        if char in exclude_char:
+            continue
+        string = string + char
+    string = string.lower()
+    rev_string = string[::-1]
+    if string == rev_string:
+        return True
+    else:
+        return False
     
+    
+def isPalindrome_1(self, s: str) -> bool:
+    clean_s = "".join([a.lower() for a in s if a.isalnum()])
+    left = 0
+    right = len(clean_s)
+    while right>left:
+        if clean_s[left]==clean_s[right-1]:
+            left+=1
+            right-=1
+        else:
+            return False
+    return True
 if __name__ == "__main__":
     s = "A man, a plan, a canal: Panama"
     value  = valid_palindrome(s)
     print(value)
     value_1 = valid_palindrome_1(s)
     print(value_1)
+    value_2 = isPalindrome(s)
+    print(value_2)
+    value_3 = isPalindrome_1(s)
+    print(value_3)
