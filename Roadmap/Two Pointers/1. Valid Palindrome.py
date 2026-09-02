@@ -46,7 +46,7 @@ def valid_palindrome_1(string):
         right -= 1
     return True 
 
-def isPalindrome(self, s: str) -> bool:
+def isPalindrome(s: str) -> bool:
     exclude_char = [",",":"," ","/",".","@","#","$","_","-","'","\\","{","}","!","[","]",'"',"?",";","(",")","`"]
     string = ""
     for char in s:
@@ -61,7 +61,7 @@ def isPalindrome(self, s: str) -> bool:
         return False
     
     
-def isPalindrome_1(self, s: str) -> bool:
+def isPalindrome_1(s: str) -> bool:
     clean_s = "".join([a.lower() for a in s if a.isalnum()])
     left = 0
     right = len(clean_s)
@@ -72,6 +72,20 @@ def isPalindrome_1(self, s: str) -> bool:
         else:
             return False
     return True
+
+def palindrome(string):
+    string = "".join(s.lower() for s in string if s.isalnum())
+    left = 0
+    right = len(string) - 1
+
+    while left  < right :
+        if string[left] == string[right]:
+            left += 1 
+            right -= 1
+        else:
+            return False
+    return True
+
 if __name__ == "__main__":
     s = "A man, a plan, a canal: Panama"
     value  = valid_palindrome(s)
@@ -82,3 +96,5 @@ if __name__ == "__main__":
     print(value_2)
     value_3 = isPalindrome_1(s)
     print(value_3)
+    value_4 = palindrome(s)
+    print(value_4)
