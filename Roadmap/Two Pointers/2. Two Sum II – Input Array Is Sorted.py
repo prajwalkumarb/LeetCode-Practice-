@@ -30,9 +30,19 @@ def twoSumArray(numbers,target):
         sum_val = target - val
         if sum_val in numbers and ind != numbers.index(sum_val):
             return [ind+1,numbers.index(sum_val)+1]
+        
+def twoSum(numbers: list[int], target: int) -> list[int]:
+    mapper = {}
+    for ind , val in enumerate(numbers):
+        rem_val = target - val
+        if rem_val in mapper:
+            return [mapper[rem_val]+1,ind+1]
+        mapper[val] = ind
 
 if __name__ == "__main__":
     numbers = [2,7,11,15]
     targer = 9
     result = twoSumArray(numbers,targer)
     print(result)
+    result_2 = twoSum(numbers,targer)
+    print(result_2)
