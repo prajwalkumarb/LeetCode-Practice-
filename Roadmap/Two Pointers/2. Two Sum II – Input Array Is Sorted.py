@@ -39,6 +39,19 @@ def twoSum(numbers: list[int], target: int) -> list[int]:
             return [mapper[rem_val]+1,ind+1]
         mapper[val] = ind
 
+def twoSum_3(numbers: list[int], target: int) -> list[int]:
+        start = 0
+        end = len(numbers) - 1
+        while start < end :
+            total  = numbers[start] + numbers[end]
+            if total == target:
+                return [start + 1, end + 1]
+            elif total < target:
+                start += 1
+            else:
+                end -= 1
+        return [-1,-1]
+    
 if __name__ == "__main__":
     numbers = [2,7,11,15]
     targer = 9
@@ -46,3 +59,5 @@ if __name__ == "__main__":
     print(result)
     result_2 = twoSum(numbers,targer)
     print(result_2)
+    result_3 = twoSum_3(numbers,targer)
+    print(result_3)
