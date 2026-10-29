@@ -308,22 +308,94 @@
 # -----------------------------------------------------------------------
 # Shallow copy and deep copy
 
-import copy
-original = [[1,2],[3,4]]
-shallow = copy.copy(original)
-deep = copy.deepcopy(original)
+# import copy
+# original = [[1,2],[3,4]]
+# shallow = copy.copy(original)
+# deep = copy.deepcopy(original)
 
-print("\noriginal",original)
-print("shallow",shallow)
-print("deep",deep)
+# print("\noriginal",original)
+# print("shallow",shallow)
+# print("deep",deep)
 
-shallow[0].append(99)
+# shallow[0].append(99)
 
-print("\noriginal",original)
-print("shallow",shallow)
-print("deep",deep)
+# print("\noriginal",original)
+# print("shallow",shallow)
+# print("deep",deep)
 
-shallow.append([5,6])
-print("\noriginal",original)
-print("shallow",shallow)
-print("deep",deep)
+# shallow.append([5,6])
+# print("\noriginal",original)
+# print("shallow",shallow)
+# print("deep",deep)
+
+# Gil
+
+# import time, threading
+
+# def cpu_task():
+#     sum(i * i for i in range(10_000_000))
+
+# start = time.perf_counter()
+# cpu_task(); 
+# cpu_task()
+# print("Sequrntial:", time.perf_counter() - start)
+
+# start = time.perf_counter()
+# t1 = threading.Thread(target=cpu_task)
+# t2 = threading.Thread(target=cpu_task)
+# t1.start()
+# t2.start()
+# t1.join()
+# t2.join()
+# print("Parallel:", time.perf_counter() - start)
+
+# import threading
+# import time
+
+# def task(name):
+#     print(f"{name} started")
+#     time.sleep(2)
+#     print(f"{name} completed")
+
+# start = time.time()
+
+# t1 = threading.Thread(target=task, args=("Task 1",))
+# t2 = threading.Thread(target=task, args=("Task 2",))
+# t3 = threading.Thread(target=task, args=("Task 3",))
+
+# t1.start()
+# t2.start()
+# t3.start()
+
+# t1.join()
+# t2.join()
+# t3.join()
+
+# print("Total time:", round(time.time() - start, 2))
+
+
+import multiprocessing
+import time
+
+def task(name):
+    print(f"{name} started")
+
+    total = 0
+    for i in range(10_000_000):
+        total += i
+
+    print(f"{name} completed")
+
+if __name__ == "__main__":
+    start = time.time()
+
+    p1 = multiprocessing.Process(target=task, args=("Process 1",))
+    p2 = multiprocessing.Process(target=task, args=("Process 2",))
+
+    p1.start()
+    p2.start()
+
+    p1.join()
+    p2.join()
+
+    print("Total time:", round(time.time() - start, 2))
